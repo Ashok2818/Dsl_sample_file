@@ -1,0 +1,48 @@
+job('maven_seed-child'){
+ 
+  description('this is simple maven job genaerated by seed job')
+ 
+  parameters {
+   stringParam('svn_project', defaultValue='mms/ufm2/branches')
+   choiceParam('tag',['19.2.000_000','19.2.000_001','19.2.000_002','19.2.000_003','19.2.000_007','19.3.000_001','19.3.000_003'])
+  }
+  
+  scm{
+    git('https://github.com/Ashok2818/simple_java_maven.git')
+  }
+  triggers{
+    cron('*/2 * * * *')
+  }
+  
+  steps{
+    maven{
+    mavenInstallation('maven-jenkins')
+    goals('compile')
+         }
+    maven{
+    mavenInstallation('maven-jenkins')
+    goals('test')
+         }
+   maven{
+    mavenInstallation('maven-jenkins')
+    goals('package')
+         }
+   maven{
+    mavenInstallation('maven-jenkins')
+    goals('install')
+         } 
+     shell(
+       '''
+       echo "**************RUNNING JAR *********************"
+       java -jar /var/lib/jenkins/workspace/maven_seed-child/target/my-app-1.0-SNAPSHOT.jar
+       '''
+              )
+     }
+
+ publishers{
+     archiveArtifacts('target/*.jar')
+     archiveJunit('target/surefire-reports/*xml')
+     mailer('ashok.rb94@gmail.com')      
+     }   
+}
+
